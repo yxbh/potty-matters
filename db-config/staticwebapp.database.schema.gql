@@ -5,7 +5,7 @@ Add your CosmosDB NoSQL database schema in this file
 
 type PetEvent @model {
   id: ID
-  timestamp: string
+  timestamp: date
   eventType: string
   description: String
 }
