@@ -1,0 +1,14 @@
+
+"""
+Add your CosmosDB NoSQL database schema in this file
+
+For example:
+
+type PetEvent @model {
+  id: ID
+  timestamp: date
+  eventType: string
+  description: String
+}
+
+"""
