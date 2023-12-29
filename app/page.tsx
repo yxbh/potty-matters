@@ -44,25 +44,12 @@ export default function Home() {
         data: petEvents.filter((event: PetEvent) => event.type === option.value).map((event: PetEvent) => {
           return {
             x: event.timestamp,
-            y: index + 1,
+            y: 0.2 * index + 1,
           }
         }),
       };
       datasets.push(dataset);
     });
-
-    // PetEventOptions.forEach((option, index) => {
-    //   const dataset = {
-    //     id: option.value,
-    //     label: option.label,
-    //     // data: petEvents.filter((event: PetEvent) => event.type === option.value).map(() => index + 1),
-    //     data: petEvents.filter((event: PetEvent) => event.type === option.value).map(() => index + 1),
-    //   };
-    //   datasets.push(dataset);
-    // });
-
-    console.table(datasets);
-    console.log("labels:", petEvents.map((event: PetEvent) => event.timestamp));
 
     setGraphData({
       labels: petEvents.map((event: PetEvent) => event.timestamp),
@@ -104,15 +91,15 @@ export default function Home() {
 
         const response = await savePetEvent(newEventToSave);
         const json = await response.json();
-        console.log(json);
-        console.table(json.data.createPetEvent);
+        // console.log(json);
+        // console.table(json.data.createPetEvent);
       }
     }
 
     setCreatingEvent(false);
 
     // reset form.
-    setEventTimestamp(new Date());
+    // setEventTimestamp(new Date());
     setEventOptions({});
 
     // fetch events again.
@@ -123,17 +110,17 @@ export default function Home() {
     fetchPetEvents,
     setCreatingEvent,
     setEventOptions,
-    setEventTimestamp
+    // setEventTimestamp,
   ]);
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-5">
 
       {/* Quick form to create new event entries */}
-      <div className='px-40'>
+      <div className='mx-40'>
         <EventCreateForm
           timestamp={eventTimestamp}
-          options={eventOptions}
-          onChange={(timestamp: Date, options: { [key: string]: boolean }) => {
+          selectedEventTypes={eventOptions}
+          onEdit={(timestamp: Date, options: { [key: string]: boolean }) => {
             setEventTimestamp(timestamp);
             setEventOptions(options);
 
@@ -168,31 +155,12 @@ export default function Home() {
                 },
                 y: {
                   display: false,
-                  max: 8,
+                  max: 3,
                   min: 0,
                 },
               },
             }}
           />
-          {/* <Line
-            datasetIdKey="id"
-            data={graphData}
-            options={{
-              responsive: true,
-              // maintainAspectRatio: false,
-              showLine: false,
-              scales: {
-                x: {
-                  type: 'time',
-                },
-                y: {
-                  display: false,
-                  max: 8,
-                  min: 0,
-                },
-              },
-            }}
-          /> */}
         </div>
       }
 
