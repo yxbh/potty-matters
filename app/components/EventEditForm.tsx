@@ -5,12 +5,12 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
 export const PetEventOptions = [
-  { value: 'pee', label: '💦 Pee' },
-  { value: 'poo', label: '💩 Poo' },
-  { value: 'food', label: '🍖 Food' },
-  { value: 'drink', label: '🍵 Drink' },
-  { value: 'debug_a', label: '🐛 debug a' },
-  { value: 'debug_b', label: '🐜 debug b' },
+  { value: 'pee', label: '💦 Pee', colour: 'rgb(99, 255, 132)' },
+  { value: 'poo', label: '💩 Poo', colour: 'rgb(255, 132, 99)' },
+  { value: 'food', label: '🍖 Food', colour: 'rgb(132, 99, 255)' },
+  { value: 'drink', label: '🍵 Drink', colour: 'rgb(255, 99, 132)' },
+  { value: 'debug_a', label: '🐛 debug a', colour: 'rgb(255, 99, 132)' },
+  { value: 'debug_b', label: '🐜 debug b', colour: 'rgb(255, 132, 99)' },
 ];
 
 // Function that converts a pet event type value to its matching label if there exists one.

@@ -12,8 +12,12 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
+    "chart.js": "^4.4.1",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^3.0.6",
     "next": "14.0.4",
     "react": "^18",
+    "react-chartjs-2": "^5.2.0",
     "react-datepicker": "^4.25.0",
     "react-dom": "^18",
     "uuid": "^9.0.1"

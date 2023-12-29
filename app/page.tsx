@@ -1,11 +1,16 @@
 'use client';
 
-import EventCreateForm, { getPetEventLabel } from './components/EventEditForm'
+import EventCreateForm, { PetEventOptions, getPetEventLabel } from './components/EventEditForm'
 import * as React from "react";
 
 import { v4 as uuidv4 } from 'uuid';
 import { PetEvent } from './models';
 import { getPetEvents, savePetEvent } from './utility';
+import { Line, Scatter } from 'react-chartjs-2';
+import { Chart as ChartJS, ScatterController, LineController, LineElement, PointElement, Legend, Title, Tooltip, LinearScale, CategoryScale, TimeScale } from 'chart.js';
+import 'chartjs-adapter-date-fns';
+
+ChartJS.register(ScatterController, LineController, LineElement, PointElement, Legend, Title, Tooltip, LinearScale, CategoryScale, TimeScale);
 
 export default function Home() {
 
@@ -14,6 +19,7 @@ export default function Home() {
   const [creatingEvent, setCreatingEvent] = React.useState(false);
   const [petEvents, setPetEvents] = React.useState<PetEvent[]>([]);
   const [isFetchingPetEvents, setIsFetchingPetEvents] = React.useState(false);
+  const [graphData, setGraphData] = React.useState<any>({ labels: [], datasets: [] });
 
   const fetchPetEvents = React.useCallback(async () => {
 
@@ -25,9 +31,47 @@ export default function Home() {
     setPetEvents(petEvents);
 
     setIsFetchingPetEvents(false);
+
+    // map petEvents to its own dataset by its type value.
+    // the dataset will have a id of type value, a label of the type value and a data array of timestamps.
+    // const datasets: { id: string; label: string; data: number[]; }[] = [];
+    const datasets: {}[] = []
+    PetEventOptions.forEach((option, index) => {
+      const dataset = {
+        id: option.value,
+        label: option.label,
+        backgroundColor: option.colour,
+        data: petEvents.filter((event: PetEvent) => event.type === option.value).map((event: PetEvent) => {
+          return {
+            x: event.timestamp,
+            y: index + 1,
+          }
+        }),
+      };
+      datasets.push(dataset);
+    });
+
+    // PetEventOptions.forEach((option, index) => {
+    //   const dataset = {
+    //     id: option.value,
+    //     label: option.label,
+    //     // data: petEvents.filter((event: PetEvent) => event.type === option.value).map(() => index + 1),
+    //     data: petEvents.filter((event: PetEvent) => event.type === option.value).map(() => index + 1),
+    //   };
+    //   datasets.push(dataset);
+    // });
+
+    console.table(datasets);
+    console.log("labels:", petEvents.map((event: PetEvent) => event.timestamp));
+
+    setGraphData({
+      labels: petEvents.map((event: PetEvent) => event.timestamp),
+      datasets: datasets,
+    });
   }, [
     setPetEvents,
-    setIsFetchingPetEvents
+    setIsFetchingPetEvents,
+    setGraphData,
   ]);
 
   React.useEffect(() => {
@@ -82,10 +126,10 @@ export default function Home() {
     setEventTimestamp
   ]);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-10">
+    <main className="flex min-h-screen flex-col items-center justify-between p-5">
 
       {/* Quick form to create new event entries */}
-      <div>
+      <div className='px-40'>
         <EventCreateForm
           timestamp={eventTimestamp}
           options={eventOptions}
@@ -109,7 +153,55 @@ export default function Home() {
         {creatingEvent && <p>Saving...</p>}
       </div>
 
+      {petEvents.length > 0 &&
+        <div className="bg-white mb-32 text-center lg:w-full">
+          <Scatter
+            datasetIdKey="id"
+            data={graphData}
+            options={{
+              responsive: true,
+              // maintainAspectRatio: false,
+              showLine: false,
+              scales: {
+                x: {
+                  type: 'time',
+                },
+                y: {
+                  display: false,
+                  max: 8,
+                  min: 0,
+                },
+              },
+            }}
+          />
+          {/* <Line
+            datasetIdKey="id"
+            data={graphData}
+            options={{
+              responsive: true,
+              // maintainAspectRatio: false,
+              showLine: false,
+              scales: {
+                x: {
+                  type: 'time',
+                },
+                y: {
+                  display: false,
+                  max: 8,
+                  min: 0,
+                },
+              },
+            }}
+          /> */}
+        </div>
+      }
+
+      {/* Widget that shows the events in the past 24 hours */}
       <div>
+        <h2 className={`mb-3 text-2xl font-semibold`}>
+          Past 24 hours
+          {/* Recent */}
+        </h2>
         {/* show a "fetching..." message if isFetchingPetEvents is true */}
         {isFetchingPetEvents && <p>Fetching...</p>}
         {!isFetchingPetEvents &&
@@ -120,17 +212,6 @@ export default function Home() {
             🔃Fetch
           </button>
         }
-      </div>
-
-      {/* Widget that shows the events in the past 24 hours */}
-      <div>
-        <h2 className={`mb-3 text-2xl font-semibold`}>
-          Past 24 hours
-          {/* Recent */}
-        </h2>
-        <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-          TODO: Display a time graph of events.
-        </p>
 
         {petEvents.length > 0 &&
           <div>
