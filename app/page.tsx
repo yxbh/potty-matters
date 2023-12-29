@@ -46,7 +46,7 @@ export default function Home() {
         data: petEvents.filter((event: PetEvent) => event.type === option.value).map((event: PetEvent) => {
           return {
             x: event.timestamp,
-            y: 0.2 * index + 1,
+            y: 0.10 * index + 0.1,
           }
         }),
       };
@@ -93,7 +93,7 @@ export default function Home() {
 
         const response = await savePetEvent(newEventToSave);
         const json = await response.json();
-        // console.log(json);
+        console.log(json);
         // console.table(json.data.createPetEvent);
       }
     }
@@ -146,13 +146,15 @@ export default function Home() {
       </div>
 
       {petEvents.length > 0 &&
-        <div className="bg-white mb-32 text-center lg:w-full">
+        <div className="bg-white mb-32 text-center w-full">
           <Scatter
             datasetIdKey="id"
             data={graphData}
+            width="var(--chart-width)"
+            height= "250px"
             options={{
               responsive: true,
-              // maintainAspectRatio: false,
+              maintainAspectRatio: false,
               showLine: false,
               scales: {
                 x: {
@@ -160,7 +162,7 @@ export default function Home() {
                 },
                 y: {
                   display: false,
-                  max: 3,
+                  max: 0.9,
                   min: 0,
                 },
               },
@@ -205,7 +207,7 @@ export default function Home() {
             ))}
           </ul>
         </div>
-        
+
       </div>
     </main>
   )
