@@ -1,11 +1,10 @@
 'use client';
 
-import Image from 'next/image'
-
 import EventCreateForm from './components/EventEditForm'
 import { useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
+import { PetEvent } from './models';
 
 export default function Home() {
 
@@ -70,7 +69,9 @@ export default function Home() {
   }
 
   const [petEvents, setPetEvents] = useState([]);
+  const [isFetchingPetEvents, setIsFetchingPetEvents] = useState(false);
   const fetchPetEvents = async () => {
+    setIsFetchingPetEvents(true);
     const response = await fetch('/data-api/graphql', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -90,8 +91,23 @@ export default function Home() {
       })
     });
     const json = await response.json();
+    setIsFetchingPetEvents(false);
     console.log(json);
-    setPetEvents(json.data.PetEvent);
+    console.table(json.data.petEvents.items);
+
+    // for each item in json.data.petEvents.items, convert the string into Date object if the timestamp property exists.
+    json.data.petEvents.items.forEach((item: PetEvent) => {
+      if (item.timestamp) {
+        item.timestamp = new Date(item.timestamp);
+      }
+    });
+
+    // sort the items by timestamp descending.
+    json.data.petEvents.items.sort((a: PetEvent, b: PetEvent) => {
+      return b.timestamp.getTime() - a.timestamp.getTime();
+    });
+
+    setPetEvents(json.data.petEvents.items);
   }
 
 
@@ -111,36 +127,52 @@ export default function Home() {
           }}
         />
         <br />
-        <button
-          className='bg-slate-950 border-2 border-slate-50 font-slate-50'
-          onClick={savePetEvents}
-        >
-          💾 Save
-        </button>
-      </div>
 
-      <div>
-        {/* show a "saving..." message if creatingEvent is true */}
+        {!creatingEvent &&
+          <button
+            className='bg-slate-950 border-2 border-slate-50 font-slate-50'
+            onClick={savePetEvents}
+          >
+            💾 Save
+          </button>
+        }
         {creatingEvent && <p>Saving...</p>}
       </div>
 
       <div>
-        <button
-          className='bg-slate-950 border-2 border-slate-50 font-slate-50'
-          onClick={fetchPetEvents}
-        >
-          List
-        </button>
+        {/* show a "fetching..." message if isFetchingPetEvents is true */}
+        {isFetchingPetEvents && <p>Fetching...</p>}
+        {!isFetchingPetEvents &&
+          <button
+            className='bg-slate-950 border-2 border-slate-50 font-slate-50'
+            onClick={fetchPetEvents}
+          >
+            List
+          </button>
+        }
       </div>
 
       {/* Widget that shows the events in the past 24 hours */}
       <div>
         <h2 className={`mb-3 text-2xl font-semibold`}>
-          Past 24 hours
+          {/* Past 24 hours */}
+          Recent
         </h2>
         <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-          Display a time graph of events.
+          TODO: Display a time graph of events.
         </p>
+
+        {petEvents.length > 0 &&
+          <div>
+            <ul>
+              {petEvents.map((event: PetEvent) => (
+                <li key={event.id}>
+                  <p>{event.timestamp.toLocaleString('en-AU')}: {event.type}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        }
       </div>
     </main>
   )

@@ -1,6 +1,6 @@
 export interface PetEvent {
-    id: String;
-    timestamp: Date;
-    type: String;
-    description: String;
+  id: string;
+  timestamp: Date;
+  type: string;
+  description: string;
 }
