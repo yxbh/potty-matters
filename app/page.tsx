@@ -12,6 +12,8 @@ import 'chartjs-adapter-date-fns';
 
 ChartJS.register(ScatterController, LineController, LineElement, PointElement, Legend, Title, Tooltip, LinearScale, CategoryScale, TimeScale);
 
+const LookBackHours = 32;
+
 export default function Home() {
 
   const [eventTimestamp, setEventTimestamp] = React.useState(new Date());
@@ -25,7 +27,7 @@ export default function Home() {
 
     setIsFetchingPetEvents(true);
     const petEvents = await getPetEvents({
-      filterTimestampMin: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),  // 24 hours ago.
+      filterTimestampMin: new Date(new Date().getTime() - LookBackHours * 60 * 60 * 1000),  // x hours ago.
       sortTimestampDescending: true,
     });
     setPetEvents(petEvents);
@@ -112,6 +114,9 @@ export default function Home() {
     setEventOptions,
     // setEventTimestamp,
   ]);
+
+  const [showDebugEvents, setShowDebugEvents] = React.useState(false);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-5">
 
@@ -164,34 +169,43 @@ export default function Home() {
         </div>
       }
 
-      {/* Widget that shows the events in the past 24 hours */}
+      {/* Widget that shows the events in the past x hours */}
       <div>
         <h2 className={`mb-3 text-2xl font-semibold`}>
-          Past 24 hours
+          Past {LookBackHours} hours
           {/* Recent */}
         </h2>
         {/* show a "fetching..." message if isFetchingPetEvents is true */}
-        {isFetchingPetEvents && <p>Fetching...</p>}
-        {!isFetchingPetEvents &&
+
+        <div>
           <button
             className='bg-slate-950 border-2 border-slate-50 p-1 font-slate-50'
             onClick={fetchPetEvents}
+            disabled={isFetchingPetEvents}
           >
-            🔃Fetch
+            {isFetchingPetEvents && <span>🔃Fetching...</span>}
+            {!isFetchingPetEvents && <span>🔃Fetch</span>}
           </button>
-        }
+          <label>
+            <input
+              type="checkbox"
+              checked={showDebugEvents}
+              onChange={(event) => { setShowDebugEvents(event.target.checked) }} />
+            Show debug events
+          </label>
+        </div>
 
-        {petEvents.length > 0 &&
-          <div>
-            <ul>
-              {petEvents.map((event: PetEvent) => (
-                <li key={event.id}>
-                  <p>{event.timestamp.toLocaleString('en-AU')}: {getPetEventLabel(event.type)}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        }
+        <div hidden={petEvents.length === 0}>
+          <ul>
+            {petEvents.map((event: PetEvent) => (
+              (showDebugEvents || !event.type.startsWith('debug')) &&
+              <li key={event.id}>
+                <p>{event.timestamp.toLocaleString('en-AU')}: {getPetEventLabel(event.type)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+        
       </div>
     </main>
   )
