@@ -8,15 +8,13 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "engines": {
-   "node": ">=14.0.0"
-  },
   "dependencies": {
+    "@types/uuid": "^9.0.7",
     "next": "14.0.4",
     "react": "^18",
     "react-datepicker": "^4.25.0",
     "react-dom": "^18",
-    "server": "^1"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
