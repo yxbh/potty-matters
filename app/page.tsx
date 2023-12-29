@@ -1,6 +1,6 @@
 'use client';
 
-import EventCreateForm from './components/EventEditForm'
+import EventCreateForm, { getPetEventLabel } from './components/EventEditForm'
 import * as React from "react";
 
 import { v4 as uuidv4 } from 'uuid';
@@ -137,7 +137,7 @@ export default function Home() {
             <ul>
               {petEvents.map((event: PetEvent) => (
                 <li key={event.id}>
-                  <p>{event.timestamp.toLocaleString('en-AU')}: {event.type}</p>
+                  <p>{event.timestamp.toLocaleString('en-AU')}: {getPetEventLabel(event.type)}</p>
                 </li>
               ))}
             </ul>

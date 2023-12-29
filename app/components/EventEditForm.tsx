@@ -4,7 +4,7 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
-const EventOptions = [
+export const PetEventOptions = [
   { value: 'pee', label: '💦 Pee' },
   { value: 'poo', label: '💩 Poo' },
   { value: 'food', label: '🍖 Food' },
@@ -12,6 +12,12 @@ const EventOptions = [
   { value: 'debug_a', label: '🐛 debug a' },
   { value: 'debug_b', label: '🐜 debug b' },
 ];
+
+// Function that converts a pet event type value to its matching label if there exists one.
+export function getPetEventLabel(type: string): string {
+  const option = PetEventOptions.find((option) => option.value === type);
+  return option?.label ?? type;
+}
 
 ///
 /// A component that allows the user to edit an event with timestamp and options.
@@ -57,7 +63,7 @@ export default function EventEditForm(props: {
         />
       </label>
       <div className='grid grid-flow-row auto-rows-max'>
-        {EventOptions.map((option, index) => (
+        {PetEventOptions.map((option, index) => (
           <label key={index}>
             <input
               type="checkbox"
