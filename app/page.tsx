@@ -1,18 +1,41 @@
 'use client';
 
 import EventCreateForm from './components/EventEditForm'
-import { useState } from 'react';
+import * as React from "react";
 
 import { v4 as uuidv4 } from 'uuid';
 import { PetEvent } from './models';
+import { getPetEvents, savePetEvent } from './utility';
 
 export default function Home() {
 
-  const [eventTimestamp, setEventTimestamp] = useState(new Date());
-  const [eventOptions, setEventOptions] = useState<{ [key: string]: boolean }>({});
-  const [creatingEvent, setCreatingEvent] = useState(false);
+  const [eventTimestamp, setEventTimestamp] = React.useState(new Date());
+  const [eventOptions, setEventOptions] = React.useState<{ [key: string]: boolean }>({});
+  const [creatingEvent, setCreatingEvent] = React.useState(false);
+  const [petEvents, setPetEvents] = React.useState<PetEvent[]>([]);
+  const [isFetchingPetEvents, setIsFetchingPetEvents] = React.useState(false);
 
-  const savePetEvents = async () => {
+  const fetchPetEvents = React.useCallback(async () => {
+
+    setIsFetchingPetEvents(true);
+    const petEvents = await getPetEvents();
+    setPetEvents(petEvents);
+
+    setIsFetchingPetEvents(false);
+  }, [
+    setPetEvents,
+    setIsFetchingPetEvents
+  ]);
+
+  React.useEffect(() => {
+
+    fetchPetEvents();
+
+  }, [
+    fetchPetEvents
+  ]);
+
+  const savePetEvents = React.useCallback(async () => {
 
     // iterate eventOptions
     for (const eventType in eventOptions) {
@@ -25,36 +48,14 @@ export default function Home() {
         const id = uuidv4().toString();
 
         // create a PetEvent object with the timestamp, matching type string and an empty description.
-
-        const gql = `
-          mutation create($item: CreatePetEventInput!) {
-            createPetEvent(item: $item) {
-              id
-              timestamp
-              type
-              description
-            }
-          }`;
-
-        const data = {
+        const newEventToSave: PetEvent = {
           id: id,
-          timestamp: eventTimestamp.toISOString(),
+          timestamp: eventTimestamp,
           type: eventType,
           description: "",
         };
 
-        const query = {
-          query: gql,
-          variables: {
-            item: data
-          }
-        };
-
-        const response = await fetch('/data-api/graphql', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(query)
-        });
+        const response = await savePetEvent(newEventToSave);
         const json = await response.json();
         console.log(json);
         console.table(json.data.createPetEvent);
@@ -66,51 +67,17 @@ export default function Home() {
     // reset form.
     setEventTimestamp(new Date());
     setEventOptions({});
-  }
 
-  const [petEvents, setPetEvents] = useState([]);
-  const [isFetchingPetEvents, setIsFetchingPetEvents] = useState(false);
-  const fetchPetEvents = async () => {
-    setIsFetchingPetEvents(true);
-    const response = await fetch('/data-api/graphql', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `
-          {
-            petEvents {
-              items {
-                id
-                timestamp
-                type
-                description
-              }
-            }
-          }
-        `
-      })
-    });
-    const json = await response.json();
-    setIsFetchingPetEvents(false);
-    console.log(json);
-    console.table(json.data.petEvents.items);
-
-    // for each item in json.data.petEvents.items, convert the string into Date object if the timestamp property exists.
-    json.data.petEvents.items.forEach((item: PetEvent) => {
-      if (item.timestamp) {
-        item.timestamp = new Date(item.timestamp);
-      }
-    });
-
-    // sort the items by timestamp descending.
-    json.data.petEvents.items.sort((a: PetEvent, b: PetEvent) => {
-      return b.timestamp.getTime() - a.timestamp.getTime();
-    });
-
-    setPetEvents(json.data.petEvents.items);
-  }
-
-
+    // fetch events again.
+    fetchPetEvents();
+  }, [
+    eventOptions,
+    eventTimestamp,
+    fetchPetEvents,
+    setCreatingEvent,
+    setEventOptions,
+    setEventTimestamp
+  ]);
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
 
@@ -147,7 +114,7 @@ export default function Home() {
             className='bg-slate-950 border-2 border-slate-50 font-slate-50'
             onClick={fetchPetEvents}
           >
-            List
+            Fetch
           </button>
         }
       </div>
