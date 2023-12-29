@@ -82,7 +82,7 @@ export default function Home() {
     setEventTimestamp
   ]);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center justify-between p-10">
 
       {/* Quick form to create new event entries */}
       <div>
