@@ -8,7 +8,9 @@ const EventOptions = [
   { value: 'pee', label: '💦 Pee' },
   { value: 'poo', label: '💩 Poo' },
   { value: 'food', label: '🍖 Food' },
-  { value: 'drink', label: '🍵 Drink' }
+  { value: 'drink', label: '🍵 Drink' },
+  { value: 'debug_a', label: '🐛 debug a' },
+  { value: 'debug_b', label: '🐜 debug b' },
 ];
 
 ///

@@ -18,7 +18,10 @@ export default function Home() {
   const fetchPetEvents = React.useCallback(async () => {
 
     setIsFetchingPetEvents(true);
-    const petEvents = await getPetEvents();
+    const petEvents = await getPetEvents({
+      filterTimestampMin: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),  // 24 hours ago.
+      sortTimestampDescending: true,
+    });
     setPetEvents(petEvents);
 
     setIsFetchingPetEvents(false);
@@ -97,7 +100,7 @@ export default function Home() {
 
         {!creatingEvent &&
           <button
-            className='bg-slate-950 border-2 border-slate-50 font-slate-50'
+            className='bg-slate-950 border-2 border-slate-50 p-1 font-slate-50'
             onClick={savePetEvents}
           >
             💾 Save
@@ -111,10 +114,10 @@ export default function Home() {
         {isFetchingPetEvents && <p>Fetching...</p>}
         {!isFetchingPetEvents &&
           <button
-            className='bg-slate-950 border-2 border-slate-50 font-slate-50'
+            className='bg-slate-950 border-2 border-slate-50 p-1 font-slate-50'
             onClick={fetchPetEvents}
           >
-            Fetch
+            🔃Fetch
           </button>
         }
       </div>
@@ -122,8 +125,8 @@ export default function Home() {
       {/* Widget that shows the events in the past 24 hours */}
       <div>
         <h2 className={`mb-3 text-2xl font-semibold`}>
-          {/* Past 24 hours */}
-          Recent
+          Past 24 hours
+          {/* Recent */}
         </h2>
         <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
           TODO: Display a time graph of events.
